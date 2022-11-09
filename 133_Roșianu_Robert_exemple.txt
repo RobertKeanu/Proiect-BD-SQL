@@ -1,0 +1,81 @@
+-----------cereri ex 12-------------
+
+--Ex1: Sa se afiseze numele, prenumele si codul echipei pentru angajatii care folosesc tableta grafica "Wacom One 2" si fac parte din echipa cu codul 4.
+with ang_rr(nume_ang_wacom, prenume_ang_wacom, cod_ang_wacom) as 
+(select angajat.nume, angajat.prenume, angajat.cod_echipa from angajat,aparatura,tableta_grafica where angajat.cod_aparatura = aparatura.cod_aparatura
+and aparatura.cod_tableta_grafica = tableta_grafica.cod_tableta_grafica
+and tableta_grafica.nume_tableta_grafica = 'Wacom One 2')
+select * from ang_rr where cod_ang_wacom = 4; --2rez
+
+--Ex2: Sa se afiseze numele, prenumele, codul si numarul de subordonati ai angajatilor care au cel putin 2 subordonati.
+--Sa se ordoneze descrescator dupa numarul de subordonati , sau daca acestia au un numar egal de subordonati, crescator dupa codul angajatului.
+select distinct angajat.cod_superior_direct as angajat_rr,
+count(angajat.cod_angajat) as nr_subordonati
+from angajat group by angajat.cod_superior_direct
+having count(angajat.cod_angajat)>2
+order by 2 desc,1;  --14rez
+
+--Ex3: Sa se afiseze numele, prenumele, codul superiorului , daca nu exista se va insera 0, numarul echipei si al filialei + salariul pentru angajatii
+--care au salariul mai mare decat media salariilor dintr-o filiala , sa se ordoneze crescator dupa codul angajatului
+select distinct a.nume, a.prenume, a.cod_angajat, nvl(a.cod_superior_direct,0) as cod_superior,e.cod_echipa,f.cod_filiala,s.salariu
+from angajat a ,echipa e,filiala f,slujba s
+where a.cod_echipa = e.cod_echipa and
+a.cod_slujba = s.cod_slujba and
+e.cod_filiala = f.cod_filiala
+and s.salariu > (select avg(slb.salariu) from angajat ang, slujba slb, filiala ff where ang.cod_echipa = a.cod_echipa and ang.cod_slujba = slb.cod_slujba and e.cod_filiala = ff.cod_filiala)
+order by 1; --35rez
+
+--Ex4: Sa se afiseze numele , prenumele , tableta_grafica, vechimea tabletei grafice(in functie de codul acesteia) ,codul si salariul angajatilor
+--care au ca superior un angajat ce lucreaza intr-o regiune care contine 'pa' in nume si care au salariul mai mic decat media salariilor din slujba lor
+
+select distinct a.cod_angajat, a.nume, a.prenume, t.nume_tableta_grafica,
+case
+when t.cod_tableta_grafica = 1 or t.cod_tableta_grafica = 2 or t.cod_tableta_grafica = 3 or t.cod_tableta_grafica = 4 or t.cod_tableta_grafica = 5 then 'tableta generatie noua'
+when t.cod_tableta_grafica = 6 or t.cod_tableta_grafica = 7 or t.cod_tableta_grafica = 8 or t.cod_tableta_grafica = 9 then 'tableta generatie veche'
+else 'tableta prototip' end as vechime_tableta_grafica
+from angajat a,aparatura ap, tableta_grafica t, slujba s
+where a.cod_superior_direct in (select a1.cod_angajat from angajat a1, echipa e, filiala f, oras o, tara t, regiune r
+where a1.cod_echipa = e.cod_echipa and
+e.cod_filiala = f.cod_filiala and
+f.cod_oras = o.cod_oras and
+o.cod_tara = t.cod_tara and t.cod_regiune = r.cod_regiune and r.nume_regiune like '%pa%')
+and a.cod_slujba = s.cod_slujba
+and a.cod_aparatura = ap.cod_aparatura
+and ap.cod_tableta_grafica = t.cod_tableta_grafica
+and s.salariu < (select avg(salariu) from slujba);  --53 rez
+
+--Ex5: Sa se afiseze pentru angajatii ce lucreaza in Europa de Est si contin in prenume litera 'd' ,codul acestora, numele, prenumele,
+--ultima zi din prima luna in care au fost angajati, numarul total de zile lucrate la studio pana in data de 21.05.2022 , slujba acestuia
+--(animator 2d si 3d vor fi doar animatori, artistul de background si editorul vor fi Angajati_editori, scenaristul scenarist, actori de voce , inginer de sunet, compozitor de muzica 
+--vor fi trecuti ca Angajati_sunet si managerul de echipa manager)
+--si sa se ordoneze rezultatele in ordinea lungimii numelui
+
+select unique a.cod_angajat, a.nume, a.prenume, last_day(a.data_angajare) as ultima_zi_din_prima_luna,
+to_date('21-05-2022','dd-mm-yy') - a.data_angajare as zile_lucrate, 
+decode (s.nume_slujba, 'Animator 2D' ,'Animator','Animator 3D','Animator', 'Scenarist','Scenarist', 'Artist de background','Angajat_editor',
+'Editor' , 'Angajat_editor','Manager echipa','Manager', 'Angajat_sunet') as slujba_rr
+from angajat a, slujba s, echipa e, tara t, regiune r, oras o, filiala f
+where a.cod_slujba = s.cod_slujba and a.cod_echipa = e.cod_echipa and
+e.cod_filiala = f.cod_filiala and
+f.cod_oras = o.cod_oras and
+o.cod_tara = t.cod_tara and
+t.cod_regiune = r.cod_regiune and
+r.nume_regiune = 'Europa de Est' and
+a.prenume like '%d%'
+order by length(nume); --7rez
+
+----------------------Operatii de actualizare si suprimare ex13----------------------
+--Ex1 : Updatati filialele aflate in Brasov si in Medellin sa fie cu venit mare
+Update Filiala
+set venit_mare = 'Da'
+where adresa_filiala in (select filiala.adresa_filiala from filiala, oras where oras.cod_oras = filiala.cod_oras and (oras.nume_oras = 'Brasov' or oras.nume_oras = 'Medellin'));
+
+
+--Ex2: Efectuati marirea salariului slujbei de manager cu 10%.
+Update Slujba
+set salariu = salariu + salariu * 1/5
+where cod_slujba in (select cod_slujba from slujba where nume_slujba = 'Manager echipa');
+
+--Ex3: Stergeti toti angajatii care au slujba de Animator 3D.
+Delete from Angajat
+where cod_angajat in (select cod_angajat from angajat, slujba where angajat.cod_slujba = slujba.cod_slujba and slujba.nume_slujba = 'Animator 3D'); 

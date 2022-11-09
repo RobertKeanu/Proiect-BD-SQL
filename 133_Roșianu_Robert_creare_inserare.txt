@@ -1,0 +1,499 @@
+create table Regiune(    ---creare tabele ->------------
+cod_regiune number(3) primary key,
+nume_regiune varchar2(20) not null,
+unique (nume_regiune)
+);
+
+create table Tara(
+cod_tara number(3) primary key,
+nume_tara varchar2(30) not null,
+cod_regiune number(3) not null,
+foreign key(cod_regiune) references Regiune(cod_regiune) on delete cascade,
+unique(nume_tara)
+);
+
+create table Oras(
+cod_oras number(3) primary key,
+nume_oras varchar2(30) not null,
+cod_tara number(3) not null,
+foreign key(cod_tara) references Tara(cod_tara) on delete cascade,
+unique(nume_oras)
+);
+
+create table Filiala(
+cod_filiala number(3) primary key,
+numar_echipe number(10) not null,
+cod_oras number(3) not null,
+foreign key(cod_oras) references Oras(cod_oras) on delete cascade,
+adresa_filiala varchar2(30) not null,
+venit_mare varchar2(30) not null check(venit_mare in('Da','Nu')),
+unique(adresa_filiala)
+);
+
+create table Echipa(
+cod_echipa number(3) primary key,
+numar_echipa number(2) not null,
+cod_filiala number(3) not null,
+foreign key(cod_filiala) references Filiala(cod_filiala) on delete cascade,
+unique(numar_echipa)
+);
+
+create table Slujba(
+cod_slujba number(3) primary key,
+nume_slujba varchar2(30) not null check(nume_slujba in ('Animator 2D','Scenarist','Artist de background','Animator 3D','Manager echipa','Editor','Compozitor de muzica','Actori de voce','Inginer de sunet')),
+salariu number(5) not null,
+unique(nume_slujba)
+);
+
+create table Distinctie(
+cod_distinctie number(3) primary key,
+nume_distinctie varchar2(30) not null,
+conditie_primire_distinctie varchar(25) not null check(conditie_primire_distinctie in ('proiect deosebit','ore in plus de lucru','eficienta','idei originale')),
+unique(nume_distinctie)
+);
+
+create table Program_animatie(
+cod_program number(3) primary key,
+nume_program varchar2(20) not null,
+numar_licente_program number(4) not null,
+unique(nume_program)
+);
+
+create table Tableta_grafica(
+cod_tableta_grafica number(3) primary key,
+nume_tableta_grafica varchar2(15) not null,
+numar_tablete_grafice number(4) not null,
+cod_tara number(3) not null,
+foreign key(cod_tara) references Tara(cod_tara) on delete cascade,
+unique(nume_tableta_grafica)
+);
+
+create table Aparatura(
+cod_aparatura number(3) primary key,
+nume_aparatura varchar2(20) not null,
+cod_tableta_grafica number(3) not null,
+foreign key(cod_tableta_grafica) references Tableta_grafica(cod_tableta_grafica) on delete cascade,
+unique(nume_aparatura)
+);
+
+create table Angajat(
+cod_angajat number(3) primary key,
+nume varchar2(20) not null,
+prenume varchar2(20) not null,
+data_angajare date not null,
+varsta number(2) not null,
+cod_echipa number(3) not null,
+cod_superior_direct number(3),
+cod_aparatura number(3) not null,
+cod_slujba number(3) not null,
+foreign key(cod_echipa) references Echipa(cod_echipa) on delete cascade,
+foreign key(cod_superior_direct) references Angajat(cod_angajat) on delete set null,
+foreign key(cod_aparatura) references Aparatura(cod_aparatura) on delete cascade,
+foreign key(cod_slujba) references Slujba(cod_slujba) on delete cascade,
+unique(nume,prenume)
+);
+
+create table Utilizeaza(
+cod_tableta_grafica number(3) not null,
+cod_program number(3) not null,
+primary key(cod_tableta_grafica, cod_program),
+foreign key(cod_tableta_grafica) references Tableta_grafica(cod_tableta_grafica) on delete cascade,
+foreign key(cod_program) references Program_animatie(cod_program) on delete cascade
+);
+
+create table A_primit(
+cod_angajat number(3) not null,
+cod_distinctie number(3) not null,
+data_acordare date not null,
+primary key(cod_angajat, cod_distinctie),
+foreign key(cod_angajat) references Angajat(cod_angajat) on delete cascade,
+foreign key(cod_distinctie) references Distinctie(cod_distinctie) on delete cascade
+);
+
+create sequence incrementare_cod_regiune
+increment by 1
+start with 1
+nocycle
+nocache;
+
+create sequence incrementare_cod_tara
+increment by 1
+start with 1
+nocycle
+nocache;
+
+create sequence incrementare_cod_oras
+increment by 1
+start with 1
+nocycle
+nocache;
+
+create sequence incrementare_cod_filiala
+increment by 1
+start with 1
+nocycle
+nocache;
+
+create sequence incrementare_cod_echipa
+increment by 1
+start with 1
+nocycle
+nocache;
+
+create sequence incrementare_cod_slujba
+increment by 1
+start with 1
+nocycle
+nocache;
+
+create sequence incrementare_cod_distinctie
+increment by 1
+start with 1
+nocycle
+nocache;
+
+create sequence incrementare_cod_program_animatie
+increment by 1
+start with 1
+nocycle
+nocache;
+
+create sequence incrementare_cod_tableta_grafica
+increment by 1
+start with 1
+nocycle
+nocache;
+
+create sequence incrementare_cod_aparatura
+increment by 1
+start with 1
+nocycle
+nocache;
+
+create sequence incrementare_cod_angajat
+increment by 1
+start with 1
+nocycle
+nocache;
+
+----------------------finish secvente---------------------
+
+---------------------inserari ->--------------------------
+
+insert into Regiune values(incrementare_cod_regiune.nextval,'Europa de Est');
+insert into Regiune values(incrementare_cod_regiune.nextval,'Europa de Vest');
+insert into Regiune values(incrementare_cod_regiune.nextval,'Asia');
+insert into Regiune values(incrementare_cod_regiune.nextval,'Africa de Sud');
+insert into Regiune values(incrementare_cod_regiune.nextval,'America de Nord');
+insert into Regiune values(incrementare_cod_regiune.nextval,'America de Sud');
+
+insert into Tara values(incrementare_cod_tara.nextval,'Romania',1);
+insert into Tara values(incrementare_cod_tara.nextval,'Bulgaria',1);
+insert into Tara values(incrementare_cod_tara.nextval,'Ucraina',1);
+insert into Tara values(incrementare_cod_tara.nextval,'Ungaria',1);
+insert into Tara values(incrementare_cod_tara.nextval,'Serbia',1);
+insert into Tara values(incrementare_cod_tara.nextval,'Franta',2);
+insert into Tara values(incrementare_cod_tara.nextval,'Germania',2);
+insert into Tara values(incrementare_cod_tara.nextval,'Regatul Unit',2);
+insert into Tara values(incrementare_cod_tara.nextval,'Olanda',2);
+insert into Tara values(incrementare_cod_tara.nextval,'Japonia',3);
+insert into Tara values(incrementare_cod_tara.nextval,'Singapore',3);
+insert into Tara values(incrementare_cod_tara.nextval,'Indonezia',3);
+insert into Tara values(incrementare_cod_tara.nextval,'Africa de Sud',4);
+insert into Tara values(incrementare_cod_tara.nextval,'Statele Unite ale Americii',5);
+insert into Tara values(incrementare_cod_tara.nextval,'Canada',5);
+insert into Tara values(incrementare_cod_tara.nextval,'Brazilia',6);
+insert into Tara values(incrementare_cod_tara.nextval,'Argentina',6);
+insert into Tara values(incrementare_cod_tara.nextval,'Columbia',6);
+
+insert into Oras values(incrementare_cod_oras.nextval,'Brasov',1);
+insert into Oras values(incrementare_cod_oras.nextval,'Bucuresti',1);
+insert into Oras values(incrementare_cod_oras.nextval,'Timisoara',1);
+insert into Oras values(incrementare_cod_oras.nextval,'Sofia',2);
+insert into Oras values(incrementare_cod_oras.nextval,'Varna',2);
+insert into Oras values(incrementare_cod_oras.nextval,'Kiev',3);
+insert into Oras values(incrementare_cod_oras.nextval,'Mariupol',3);
+insert into Oras values(incrementare_cod_oras.nextval,'Budapesta',4);
+insert into Oras values(incrementare_cod_oras.nextval,'Seghedin',4);
+insert into Oras values(incrementare_cod_oras.nextval,'Belgrad',5);
+insert into Oras values(incrementare_cod_oras.nextval,'Paris',6);
+insert into Oras values(incrementare_cod_oras.nextval,'Lion',6);
+insert into Oras values(incrementare_cod_oras.nextval,'Frankfurt',7);
+insert into Oras values(incrementare_cod_oras.nextval,'Berlin',7);
+insert into Oras values(incrementare_cod_oras.nextval,'Londra',8);
+insert into Oras values(incrementare_cod_oras.nextval,'Southampton',8);
+insert into Oras values(incrementare_cod_oras.nextval,'Amsterdam',9);
+insert into Oras values(incrementare_cod_oras.nextval,'Tokyo',10);
+insert into Oras values(incrementare_cod_oras.nextval,'Osaka',10);
+insert into Oras values(incrementare_cod_oras.nextval,'Serangoon',11);
+insert into Oras values(incrementare_cod_oras.nextval,'Jakarta',12);
+insert into Oras values(incrementare_cod_oras.nextval,'Cape Town',13);
+insert into Oras values(incrementare_cod_oras.nextval,'New York',14);
+insert into Oras values(incrementare_cod_oras.nextval,'Chicago',14);
+insert into Oras values(incrementare_cod_oras.nextval,'Toronto',15);
+insert into Oras values(incrementare_cod_oras.nextval,'Brasilia',16);
+insert into Oras values(incrementare_cod_oras.nextval,'Santa Fe',17);
+insert into Oras values(incrementare_cod_oras.nextval,'Medellin',18);
+---------inserare proasta la cod oras
+
+insert into Program_animatie values(incrementare_cod_program_animatie.nextval,'Cinema 4D',120);
+insert into Program_animatie values(incrementare_cod_program_animatie.nextval,'Adobe Premiere Pro',100);
+insert into Program_animatie values(incrementare_cod_program_animatie.nextval,'VideomakerFX',150);
+insert into Program_animatie values(incrementare_cod_program_animatie.nextval,'Powtoon',180);
+insert into Program_animatie values(incrementare_cod_program_animatie.nextval,'Vegas Pro 13',140);
+insert into Program_animatie values(incrementare_cod_program_animatie.nextval,'Lightworks',190);
+
+insert into Tableta_grafica values(incrementare_cod_tableta_grafica.nextval,'Wacom C432',60,10);
+insert into Tableta_grafica values(incrementare_cod_tableta_grafica.nextval,'Wacom T33Z',40,10);
+insert into Tableta_grafica values(incrementare_cod_tableta_grafica.nextval,'Wacom X',15,10);
+insert into Tableta_grafica values(incrementare_cod_tableta_grafica.nextval,'Wacom Cintiq 16',30,10);
+insert into Tableta_grafica values(incrementare_cod_tableta_grafica.nextval,'Wacom One 2',25,10);
+insert into Tableta_grafica values(incrementare_cod_tableta_grafica.nextval,'Drawmaster Z',5,6);
+insert into Tableta_grafica values(incrementare_cod_tableta_grafica.nextval,'Drawmaster UPL',2,6);
+insert into Tableta_grafica values(incrementare_cod_tableta_grafica.nextval,'VIN1060Plus',3,7);
+insert into Tableta_grafica values(incrementare_cod_tableta_grafica.nextval,'One Medium',8,4);
+insert into Tableta_grafica values(incrementare_cod_tableta_grafica.nextval,'Wacom 0XF',20,10);
+
+insert into Slujba values(incrementare_cod_slujba.nextval,'Animator 2D',600);
+insert into Slujba values(incrementare_cod_slujba.nextval,'Scenarist',500);
+insert into Slujba values(incrementare_cod_slujba.nextval,'Artist de background',450);
+insert into Slujba values(incrementare_cod_slujba.nextval,'Animator 3D',750);
+insert into Slujba values(incrementare_cod_slujba.nextval,'Manager echipa',1300);
+insert into Slujba values(incrementare_cod_slujba.nextval,'Editor',550);
+insert into Slujba values(incrementare_cod_slujba.nextval,'Compozitor de muzica',480);
+insert into Slujba values(incrementare_cod_slujba.nextval,'Actori de voce',440);
+insert into Slujba values(incrementare_cod_slujba.nextval,'Inginer de sunet',680);
+
+insert into Distinctie values(incrementare_cod_distinctie.nextval,'Angajatul lunii','proiect deosebit');
+insert into Distinctie values(incrementare_cod_distinctie.nextval,'Angajatul anului','eficienta');
+insert into Distinctie values(incrementare_cod_distinctie.nextval,'Cel mai creativ angajat','idei originale');
+insert into Distinctie values(incrementare_cod_distinctie.nextval,'Cel mai muncitor angajat','ore in plus de lucru');
+insert into Distinctie values(incrementare_cod_distinctie.nextval,'Cel mai eficient angajat','eficienta');
+
+insert into Aparatura values(incrementare_cod_aparatura.nextval,'Echipament 1',1);
+insert into Aparatura values(incrementare_cod_aparatura.nextval,'Echipament 2',2);
+insert into Aparatura values(incrementare_cod_aparatura.nextval,'Echipament 3',3);
+insert into Aparatura values(incrementare_cod_aparatura.nextval,'Aparatura Edit',4);
+insert into Aparatura values(incrementare_cod_aparatura.nextval,'Aparatura anim. 3D',5);
+insert into Aparatura values(incrementare_cod_aparatura.nextval,'Aparatura anim. 2D',6);
+insert into Aparatura values(incrementare_cod_aparatura.nextval,'Aparatura background',7);
+insert into Aparatura values(incrementare_cod_aparatura.nextval,'Aparatura desen',8);
+insert into Aparatura values(incrementare_cod_aparatura.nextval,'Aparatura modele',9);
+insert into Aparatura values(incrementare_cod_aparatura.nextval,'Aparatura efecte',10);
+---inserare de la 3???
+
+insert into Utilizeaza values(1,2);
+insert into Utilizeaza values(2,2);
+insert into Utilizeaza values(3,2);
+insert into Utilizeaza values(4,3);
+insert into Utilizeaza values(5,4);
+insert into Utilizeaza values(6,4);
+insert into Utilizeaza values(8,5);
+insert into Utilizeaza values(10,6);
+insert into Utilizeaza values(10,1);
+insert into Utilizeaza values(7,1);
+insert into Utilizeaza values(9,2); ----ramane de inserat
+insert into Utilizeaza values(8,4);
+
+insert into Filiala values(incrementare_cod_filiala.nextval,2,1,'Strada 13 Decembrie nr.13','Nu');
+insert into Filiala values(incrementare_cod_filiala.nextval,1,2,'Strada Coltei nr.40','Da');
+insert into Filiala values(incrementare_cod_filiala.nextval,1,3,'Strada Vasile Adamachi nr.2','Da');
+insert into Filiala values(incrementare_cod_filiala.nextval,1,4,'Bulevardul Vitosa nr.2','Nu');
+insert into Filiala values(incrementare_cod_filiala.nextval,1,5,'Strada Andrei Saharov nr.5','Da');
+insert into Filiala values(incrementare_cod_filiala.nextval,2,6,'Strada Volodimirska nr.3','Nu');
+insert into Filiala values(incrementare_cod_filiala.nextval,2,7,'Strada Herson nr.10','Nu');
+insert into Filiala values(incrementare_cod_filiala.nextval,1,8,'Bulevardul Andrasi nr.43','Da');
+insert into Filiala values(incrementare_cod_filiala.nextval,2,9,'Strada Seghedin nr.6','Nu');
+insert into Filiala values(incrementare_cod_filiala.nextval,2,10,'Strada Belgrad nr.14','Nu');
+insert into Filiala values(incrementare_cod_filiala.nextval,2,11,'Bulevardul Champs-Élysées','Da');
+insert into Filiala values(incrementare_cod_filiala.nextval,1,12,'Strada La Confluence nr.12','Da');
+insert into Filiala values(incrementare_cod_filiala.nextval,1,13,'Strada Schiller nr.4','Da');
+insert into Filiala values(incrementare_cod_filiala.nextval,1,14,'Strada Fournier nr.2','Da');
+insert into Filiala values(incrementare_cod_filiala.nextval,2,15,'Strada Kynance Mews nr.2','Da');
+insert into Filiala values(incrementare_cod_filiala.nextval,1,16,'Strada Sad Thames nr.9','Nu');
+insert into Filiala values(incrementare_cod_filiala.nextval,1,17,'Strada Beethoven nr.1','Da');
+insert into Filiala values(incrementare_cod_filiala.nextval,1,18,'Strada Takeshita nr.11','Da');
+insert into Filiala values(incrementare_cod_filiala.nextval,1,19,'Strada Ginza nr.19','Da');
+insert into Filiala values(incrementare_cod_filiala.nextval,1,20,'Strada Harumi nr.53','Nu');
+insert into Filiala values(incrementare_cod_filiala.nextval,1,21,'Bulevardul Rikyu nr.5','Nu');
+insert into Filiala values(incrementare_cod_filiala.nextval,1,22,'Strada Lunga nr.152','Da');
+insert into Filiala values(incrementare_cod_filiala.nextval,2,23,'Strada Minetta nr.166','Da');
+insert into Filiala values(incrementare_cod_filiala.nextval,1,24,'Strada Orchard nr.666','Nu');
+insert into Filiala values(incrementare_cod_filiala.nextval,1,25,'Strada St Marks nr.176','Nu');
+insert into Filiala values(incrementare_cod_filiala.nextval,2,26,'Strada Avenida nr.222','Nu');
+insert into Filiala values(incrementare_cod_filiala.nextval,1,27,'Strada Rua Visconte nr.261','Da');
+insert into Filiala values(incrementare_cod_filiala.nextval,1,28,'Strada Epitacio nr.12','Nu');
+
+insert into Echipa values(incrementare_cod_echipa.nextval,1,2);
+insert into Echipa values(incrementare_cod_echipa.nextval,2,2);
+insert into Echipa values(incrementare_cod_echipa.nextval,6,3);
+insert into Echipa values(incrementare_cod_echipa.nextval,7,4);
+insert into Echipa values(incrementare_cod_echipa.nextval,9,5);
+insert into Echipa values(incrementare_cod_echipa.nextval,4,6);
+insert into Echipa values(incrementare_cod_echipa.nextval,3,6);
+insert into Echipa values(incrementare_cod_echipa.nextval,5,7);
+insert into Echipa values(incrementare_cod_echipa.nextval,8,7);
+insert into Echipa values(incrementare_cod_echipa.nextval,10,9);
+insert into Echipa values(incrementare_cod_echipa.nextval,11,9);
+insert into Echipa values(incrementare_cod_echipa.nextval,13,10);
+insert into Echipa values(incrementare_cod_echipa.nextval,12,10);
+insert into Echipa values(incrementare_cod_echipa.nextval,15,11);
+insert into Echipa values(incrementare_cod_echipa.nextval,16,11);
+insert into Echipa values(incrementare_cod_echipa.nextval,14,12);
+insert into Echipa values(incrementare_cod_echipa.nextval,17,13);
+insert into Echipa values(incrementare_cod_echipa.nextval,18,14);
+insert into Echipa values(incrementare_cod_echipa.nextval,21,15);
+insert into Echipa values(incrementare_cod_echipa.nextval,20,15);
+insert into Echipa values(incrementare_cod_echipa.nextval,19,16);
+insert into Echipa values(incrementare_cod_echipa.nextval,22,17);
+insert into Echipa values(incrementare_cod_echipa.nextval,23,18);
+insert into Echipa values(incrementare_cod_echipa.nextval,24,19);
+insert into Echipa values(incrementare_cod_echipa.nextval,25,20);
+insert into Echipa values(incrementare_cod_echipa.nextval,26,21);
+insert into Echipa values(incrementare_cod_echipa.nextval,27,22);
+insert into Echipa values(incrementare_cod_echipa.nextval,28,23);
+insert into Echipa values(incrementare_cod_echipa.nextval,29,23);
+insert into Echipa values(incrementare_cod_echipa.nextval,30,24);
+insert into Echipa values(incrementare_cod_echipa.nextval,31,25);
+insert into Echipa values(incrementare_cod_echipa.nextval,32,26);
+insert into Echipa values(incrementare_cod_echipa.nextval,33,26);
+insert into Echipa values(incrementare_cod_echipa.nextval,34,27);
+insert into Echipa values(incrementare_cod_echipa.nextval,35,28);
+insert into Echipa values(incrementare_cod_echipa.nextval,36,1);
+insert into Echipa values(incrementare_cod_echipa.nextval,37,1);
+
+insert into Angajat values(incrementare_cod_angajat.nextval,'Rosianu','Robert',to_date('02-05-1983','dd-mm-yyyy'),68,1,NULL,8,5);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Corbeanu','Adela',to_date('25-06-2002','dd-mm-yyyy'),31,1,1,5,7);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Biciusca','Matei',to_date('28-10-2012','dd-mm-yyyy'),37,1,1,6,7);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Comanescu','Octavian',to_date('01-01-2002','dd-mm-yyyy'),41,1,1,8,7);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Depp','Johnny',to_date('05-01-2004','dd-mm-yyyy'),39,2,1,8,5);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Xhina','John',to_date('01-06-2008','dd-mm-yyyy'),44,2,1,5,7);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Petrik','Simon',to_date('29-04-2009','dd-mm-yyyy'),41,3,1,6,5);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Sins','Josh',to_date('29-09-2011','dd-mm-yyyy'),36,3,2,8,6);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Travis','Scott',to_date('10-07-2012','dd-mm-yyyy'),34,4,3,8,5);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Torres','Fernando',to_date('22-07-2013','dd-mm-yyyy'),33,4,4,5,6);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Franklin','Benjamin',to_date('05-06-2014','dd-mm-yyyy'),29,5,5,4,6);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Ferguson','Patrick',to_date('09-11-2015','dd-mm-yyyy'),27,5,6,5,5);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Creator','Tyler',to_date('22-02-2016','dd-mm-yyyy'),28,6,7,8,1);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Hulo','Jacob',to_date('15-12-2017','dd-mm-yyyy'),31,6,8,8,5);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Diaconu','Stefan',to_date('11-04-2018','dd-mm-yyyy'),30,7,9,4,1);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Gordon','Ramsey',to_date('06-05-2019','dd-mm-yyyy'),28,7,10,8,5);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Musellim','Berke',to_date('21-09-2020','dd-mm-yyyy'),29,8,11,8,1);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Iolkop','Dan',to_date('27-04-2021','dd-mm-yyyy'),27,8,12,4,5);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Ancuta','Andrei',to_date('10-07-2022','dd-mm-yyyy'),27,9,13,4,4);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Tava','Andrei',to_date('25-07-2001','dd-mm-yyyy'),26,9,13,6,5);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Titiriga','Tiberiu',to_date('01-09-2002','dd-mm-yyyy'),28,10,14,7,4);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Dina','Alex',to_date('09-03-2003','dd-mm-yyyy'),31,10,14,8,5);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Porter','Scott',to_date('30-05-2004','dd-mm-yyyy'),23,11,15,6,4);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Boaba','Guta',to_date('28-04-2005','dd-mm-yyyy'),24,11,15,8,5);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Anghel','Georgian',to_date('20-10-2006','dd-mm-yyyy'),23,12,16,4,4);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Nedelcu','Andrew',to_date('08-09-2003','dd-mm-yyyy'),22,12,17,4,5);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Warren','Buffet',to_date('25-11-2001','dd-mm-yyyy'),26,13,18,4,5);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Hardy','Fred',to_date('09-02-2002','dd-mm-yyyy'),23,13,1,8,3);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Peterson','Jacob',to_date('31-05-2002','dd-mm-yyyy'),21,14,1,2,3);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Mueller','Mason',to_date('05-06-2003','dd-mm-yyyy'),20,14,19,4,5);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Carter','Scott',to_date('17-06-2005','dd-mm-yyyy'),24,15,20,4,3);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Campbell','Marco',to_date('24-06-2008','dd-mm-yyyy'),22,15,21,5,5);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Vaughn','Douglas',to_date('21-10-2007','dd-mm-yyyy'),23,16,21,5,3);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Wolf','Lawrence',to_date('19-07-2005','dd-mm-yyyy'),21,16,22,4,5);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Walters','Tobias',to_date('11-09-2009','dd-mm-yyyy'),22,16,23,5,2);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Bush','Patrick',to_date('23-05-2003','dd-mm-yyyy'),24,17,23,4,5);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Graves','Glenn',to_date('27-10-2002','dd-mm-yyyy'),26,17,24,4,1);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Perkins','Zack',to_date('13-02-2002','dd-mm-yyyy'),24,18,25,4,3);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Smith','Jeremy',to_date('08-08-2005','dd-mm-yyyy'),27,18,25,5,5);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Hardy','Robbie',to_date('25-06-1993','dd-mm-yyyy'),45,19,26,4,8);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Chapman','Jacob',to_date('05-12-1992','dd-mm-yyyy'),40,19,26,4,5);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Daniels','Melvin',to_date('19-09-1991','dd-mm-yyyy'),43,20,27,4,9);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Reyes','Gerald',to_date('06-05-1992','dd-mm-yyyy'),46,20,27,4,5);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Campbell','Tony',to_date('24-10-1992','dd-mm-yyyy'),42,21,1,5,5);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Thompson','Aron',to_date('27-12-1992','dd-mm-yyyy'),49,21,2,5,2);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Ferno','Larry',to_date('26-11-1990','dd-mm-yyyy'),41,22,3,5,5);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Mcdonald','Mason',to_date('07-09-1999','dd-mm-yyyy'),43,22,30,5,2);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Burns','David',to_date('03-06-1991','dd-mm-yyyy'),40,23,2,5,5);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Morgan','Zack',to_date('07-09-1990','dd-mm-yyyy'),41,23,3,5,2);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Woods','Isaac',to_date('27-12-1992','dd-mm-yyyy'),48,24,38,4,5);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Peterson','Fred',to_date('08-01-1999','dd-mm-yyyy'),54,25,30,4,5);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Chapman','Scott',to_date('18-03-1990','dd-mm-yyyy'),42,26,30,6,2);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Stevenson','Douglas',to_date('11-03-1991','dd-mm-yyyy'),53,27,31,4,5);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Owens','Glenn',to_date('27-09-1992','dd-mm-yyyy'),41,27,31,4,2);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Hart','Scott',to_date('25-12-1992','dd-mm-yyyy'),50,28,32,5,2);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Hardy','David',to_date('11-03-1992','dd-mm-yyyy'),38,28,32,4,5);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Norris','Simon',to_date('15-10-1992','dd-mm-yyyy'),59,29,33,4,2);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Baker','Tras',to_date('27-12-1999','dd-mm-yyyy'),54,29,34,5,5);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Peterson','Melvin',to_date('04-09-1990','dd-mm-yyyy'),55,30,35,4,3);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Castro','Josh',to_date('28-10-1992','dd-mm-yyyy'),53,30,35,6,5);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Higs','Robbie',to_date('27-12-1992','dd-mm-yyyy'),40,31,36,5,2);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Klein','Mason',to_date('15-10-1991','dd-mm-yyyy'),51,31,37,4,5);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Cun','Jon',to_date('07-09-1990','dd-mm-yyyy'),52,32,38,5,5);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Smith','Isaac',to_date('04-05-1991','dd-mm-yyyy'),51,33,38,4,2);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Hansen','Aron',to_date('11-03-1993','dd-mm-yyyy'),49,33,39,4,5);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Johnson','Zack',to_date('15-10-1991','dd-mm-yyyy'),49,34,39,6,5);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Ramirez','Marco',to_date('28-10-1992','dd-mm-yyyy'),48,35,40,4,5);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Stevenson','Scott',to_date('04-05-1991','dd-mm-yyyy'),40,36,40,4,9);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Castro','Tony',to_date('04-09-1990','dd-mm-yyyy'),43,36,41,4,5);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Higgins','Douglas',to_date('28-01-1999','dd-mm-yyyy'),46,37,41,5,5);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Matthews','Gerald',to_date('07-06-1992','dd-mm-yyyy'),44,37,42,5,9);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Houston','Alex',to_date('27-12-1999','dd-mm-yyyy'),46,2,42,6,8);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Lebron','James',to_date('04-05-1990','dd-mm-yyyy'),45,2,43,4,8);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Jordan','Michael',to_date('07-06-1992','dd-mm-yyyy'),41,3,43,4,2);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Doncic','Luca',to_date('07-09-1999','dd-mm-yyyy'),41,3,30,4,1);---------------------------------------
+insert into Angajat values(incrementare_cod_angajat.nextval,'Blithe','Oliver',to_date('04-09-1990','dd-mm-yyyy'),63,4,30,4,1);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Klein','Jon',to_date('11-03-1991','dd-mm-yyyy'),60,4,30,5,1);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Cunningham','Stefan',to_date('07-06-1992','dd-mm-yyyy'),61,5,31,5,1);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Johnson','Lawrence',to_date('04-05-1990','dd-mm-yyyy'),52,5,31,4,1);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Morgan','Tomas',to_date('07-06-1992','dd-mm-yyyy'),42,5,32,6,1);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Owens','Jon',to_date('27-09-1992','dd-mm-yyyy'),41,6,32,5,1);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Powers','Robbie',to_date('28-01-1992','dd-mm-yyyy'),39,6,33,4,1);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Matthews','Zack',to_date('28-10-1992','dd-mm-yyyy'),40,7,34,6,1);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Wright','Tony',to_date('15-10-1991','dd-mm-yyyy'),44,7,35,4,1);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Fred','Mason',to_date('04-05-1990','dd-mm-yyyy'),49,7,36,4,1);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Masashi','Kishimoto',to_date('28-10-1992','dd-mm-yyyy'),50,8,36,4,1);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Mercedes','Ronaldinho',to_date('07-06-1992','dd-mm-yyyy'),51,8,37,4,1);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Daniel','Viteazu',to_date('27-09-1992','dd-mm-yyyy'),51,9,38,6,1);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Knight','Alan',to_date('28-10-1992','dd-mm-yyyy'),61,11,38,4,1);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Xiun','Xian',to_date('28-01-1999','dd-mm-yyyy'),63,12,39,5,1);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Accident','Opel',to_date('28-10-1992','dd-mm-yyyy'),42,13,40,6,1);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Mulea','Oper',to_date('28-10-1992','dd-mm-yyyy'),43,15,40,4,1);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Johnson','Baby',to_date('04-05-1990','dd-mm-yyyy'),49,35,41,6,1);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Flick','Rima',to_date('07-06-1992','dd-mm-yyyy'),48,34,42,5,1);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Dass','Moore',to_date('15-10-1991','dd-mm-yyyy'),42,25,42,4,1);
+insert into Angajat values(incrementare_cod_angajat.nextval,'Yamamoto','Yohji',to_date('27-09-1992','dd-mm-yyyy'),40,24,43,4,1);
+
+insert into A_primit values(1,1,to_date('09-06-2007','dd-mm-yyyy'));
+insert into A_primit values(1,2,to_date('24-03-2009','dd-mm-yyyy'));
+insert into A_primit values(1,3,to_date('12-05-2009','dd-mm-yyyy'));
+insert into A_primit values(95,1,to_date('08-02-2011','dd-mm-yyyy'));
+insert into A_primit values(93,1,to_date('28-09-2011','dd-mm-yyyy'));
+insert into A_primit values(92,1,to_date('12-05-2004','dd-mm-yyyy'));
+insert into A_primit values(91,1,to_date('30-11-2004','dd-mm-yyyy'));
+insert into A_primit values(90,1,to_date('07-01-2012','dd-mm-yyyy'));
+insert into A_primit values(3,4,to_date('14-07-2006','dd-mm-yyyy'));
+insert into A_primit values(15,5,to_date('08-02-2013','dd-mm-yyyy'));
+insert into A_primit values(3,3,to_date('09-06-2007','dd-mm-yyyy'));
+insert into A_primit values(3,2,to_date('15-08-2008','dd-mm-yyyy'));
+insert into A_primit values(3,5,to_date('08-08-2009','dd-mm-yyyy'));
+insert into A_primit values(22,1,to_date('24-03-2014','dd-mm-yyyy'));
+insert into A_primit values(21,1,to_date('28-09-2010','dd-mm-yyyy'));
+insert into A_primit values(19,1,to_date('30-11-2011','dd-mm-yyyy'));
+insert into A_primit values(4,2,to_date('17-12-2012','dd-mm-yyyy'));
+insert into A_primit values(17,1,to_date('08-02-2021','dd-mm-yyyy'));
+insert into A_primit values(4,5,to_date('07-01-2013','dd-mm-yyyy'));
+insert into A_primit values(4,3,to_date('27-06-2014','dd-mm-yyyy'));
+insert into A_primit values(4,1,to_date('27-06-2015','dd-mm-yyyy'));
+insert into A_primit values(16,1,to_date('09-06-2016','dd-mm-yyyy'));
+insert into A_primit values(14,1,to_date('14-07-2017','dd-mm-yyyy'));
+insert into A_primit values(5,3,to_date('13-11-2010','dd-mm-yyyy'));
+insert into A_primit values(11,1,to_date('08-08-2009','dd-mm-yyyy'));
+insert into A_primit values(5,5,to_date('01-05-2020','dd-mm-yyyy'));
+insert into A_primit values(8,1,to_date('19-03-2022','dd-mm-yyyy'));
+insert into A_primit values(5,1,to_date('28-09-2011','dd-mm-yyyy'));
+insert into A_primit values(5,2,to_date('07-01-2021','dd-mm-yyyy'));
+insert into A_primit values(12,5,to_date('12-05-2010','dd-mm-yyyy'));
+insert into A_primit values(18,4,to_date('24-12-2009','dd-mm-yyyy'));
+insert into A_primit values(37,1,to_date('08-08-2005','dd-mm-yyyy'));
+insert into A_primit values(39,1,to_date('08-02-2021','dd-mm-yyyy'));
+insert into A_primit values(44,1,to_date('17-03-2021','dd-mm-yyyy'));
+insert into A_primit values(46,3,to_date('17-03-2005','dd-mm-yyyy'));
+insert into A_primit values(49,1,to_date('09-06-2003','dd-mm-yyyy'));
+insert into A_primit values(56,1,to_date('14-07-2008','dd-mm-yyyy'));
+insert into A_primit values(59,5,to_date('19-03-2008','dd-mm-yyyy'));
